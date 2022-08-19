@@ -1,27 +1,25 @@
 package guru.qa.tests;
 
+import guru.qa.pages.AvitoPage;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
-import static com.codeborne.selenide.CollectionCondition.texts;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
 public class AvitoTest extends TestBase {
+
+    AvitoPage avitoPage = new AvitoPage();
 
     // First Test
     @ValueSource(strings = {"Личные вещи", "Для дома и дачи"})
     @ParameterizedTest(name = "Результаты поиска не пустые для категории {0}")
     void searchResultsAreNotNull(final String category) {
         open("https://www.avito.ru");
-        $(byText(category)).click();
-        $$("div[data-marker='item']").shouldBe(sizeGreaterThan(0));
+        avitoPage.findCategory(category);
+        avitoPage.itemsSizeGreaterThan0();
     }
 
     // Second Test
@@ -31,9 +29,8 @@ public class AvitoTest extends TestBase {
     @ParameterizedTest(name = "Результаты поиска содержат текст {1} для категории {0}")
     void categoriesContainsSection(final String category, final String section) {
         open("https://www.avito.ru");
-        $(byText(category)).click();
-        $(".rubricator-list-item-submenu-bQ0A4").$$(".rubricator-list-item-item-WKnEv")
-                .first().shouldHave(text(section));
+        avitoPage.findCategory(category);
+        avitoPage.firstSectionContainsText(section);
     }
 
     // Third Test
@@ -41,10 +38,8 @@ public class AvitoTest extends TestBase {
     @ParameterizedTest(name = "Категория {0} содержит разделы {1}")
     void categoriesContainsSections(final String category, final List<String> sections) {
         open("https://www.avito.ru");
-        $(byText(category)).click();
-        $$(".rubricator-list-item-submenu-bQ0A4 .rubricator-list-item-item-WKnEv")
-                .filter(visible)
-                .shouldHave(texts(sections));
+        avitoPage.findCategory(category);
+        avitoPage.visibleSectionsContainsTexts(sections);
     }
 
     static Stream<Arguments> dataProviderForCategoriesContainsSections() {
